@@ -9,6 +9,7 @@ Koito currently supports the following sources to import data from:
 - Maloja
 - LastFM (using https://lastfm.ghan.nl/export/)
 - ListenBrainz
+- YouTube Music (Google Takeout HTML)
 
 :::note
 ListenBrainz and LastFM imports can take a long time for large imports due to MusicBrainz requests being throttled at one per second. If you want these imports to go faster, you can [disable MusicBrainz](/reference/configuration/#koito_disable_musicbrainz) in the config while running the importer.
@@ -54,3 +55,25 @@ Create a ListenBrainz export file using [the export tool on the ListenBrainz web
 folder in your config directory. Once you restart Koito, your ListenBrainz activity will immediately start being imported.
 
 Koito relies on file names to find files to import. If the files aren't being imported automatically, make sure they contain `listenbrainz` in the file name.
+
+## YouTube Music
+
+Request an export from [Google Takeout](https://takeout.google.com/), select **YouTube and YouTube Music**, include **history**, and choose **HTML** for the history format. Use an English-language export. Extract the archive and place `watch-history.html` in the `import` folder in your Koito config directory, then restart Koito. Names beginning with `watch-history` and ending with `.html` are recognized, ignoring case. JSON history files are not supported.
+
+The importer selects YouTube Music watch activities by their activity header and `music.youtube.com` watch link. Ordinary YouTube videos are excluded, including songs watched on standard YouTube. Repeated plays and different songs at the same timestamp remain separate listens. Watch history does not include time actually played or completion status, so each eligible watch event is imported without a completion threshold. Durations represent track/video length, not measured listening time.
+
+### Metadata and import duration
+
+The HTML usually contains a title and channel, but no album or duration. Koito retrieves public metadata for the exact video ID from YouTube Music, with player metadata and oEmbed as fallbacks. These lookups require internet access but no Google sign-in, API key, or additional programs. Metadata requests are limited to one per second: 2,710 distinct video IDs need approximately 45 minutes of request spacing, plus fallback requests and database work. Repeated plays share cached metadata. Disabling MusicBrainz does not disable these YouTube lookups.
+
+When metadata remains incomplete, Koito preserves the exported title and channel, removing a terminal ` - Topic` from channel names. Some channels represent uploaders rather than performing artists; these entries are identified as raw fallbacks in the report. An unavailable album uses the catalog's existing track-title-as-album fallback. Unknown duration stays at zero and can be filled by later scrobbles. Entries without a usable title or artist/channel after all lookups remain unresolved and are listed in the report.
+
+MusicBrainz IDs are left unset during this import. Later scrobbles with matching artists, album, and track title can reuse the existing catalog entries, attach MusicBrainz IDs, and accumulate listens on the same track. Differences in titles, artist credits, or albums can prevent matching. In particular, a title-based fallback album can produce a separate track when a later scrobble supplies the real album; use the catalog's editing and merging features to reconcile these cases.
+
+### Reports and retrying
+
+Import logs include progress and a reconciliation summary. A report under `import_reports/` in the config directory is named using the original filename and its SHA-256 hash. It records every Music activity's original metadata, submitted metadata and its sources, missing fields, title-based album fallback, track ID, and outcome. The importer uses the existing database lookup to check each resolved track/timestamp before saving. The `submitted` count records accepted saves for keys absent at that check; `already_present` records keys found by the lookup. Import-window exclusions, invalid records, unresolved entries, and pending records are counted separately. These are submission outcomes, not atomic insert ownership: if another client writes the same track/timestamp between lookup and save, the database still keeps one listen, but the report cannot determine which client inserted it.
+
+For example, an export with 18,954 occurrences of `music.youtube.com` can contain 18,952 actual Music records if two records repeat their URL as their displayed title. If those two records also have no recoverable title/channel, 18,950 listens are importable. The report explains these outcomes instead of treating URL occurrences as listens.
+
+Effective metadata is saved under `youtube-music/metadata-v1/` before submitting listens. Keep this cache when retrying so imported identities remain stable. On transient network/service failures, Koito preserves the source in `import` and writes a partial report; restart Koito to retry. An import with permanently unresolved entries can still complete, with its source moved to `import_complete`. To retry unresolved entries, copy that archived HTML back to `import` and restart Koito. Previously imported listens are recognized as already present; unresolved video IDs are looked up again. Metadata already used for imported entries stays pinned, so later corrections use the catalog's editing/merging features.

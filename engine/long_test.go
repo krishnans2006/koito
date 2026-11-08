@@ -694,7 +694,7 @@ func TestAuth(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 201, resp.StatusCode)
 	var response struct {
-		Key string `json:"key"}`
+		Key string `json:"key"`
 	}
 	require.NoError(t, json.NewDecoder(resp.Body).Decode(&response))
 	require.NotEmpty(t, response.Key)

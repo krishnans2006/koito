@@ -292,7 +292,12 @@ func RunImporter(l *zerolog.Logger, store db.DB, mbzc mbz.MusicBrainzCaller) {
 		if file.IsDir() {
 			continue
 		}
-		if strings.Contains(file.Name(), "Streaming_History_Audio") {
+		if name := strings.ToLower(file.Name()); strings.HasPrefix(name, "watch-history") && strings.HasSuffix(name, ".html") {
+			l.Info().Msgf("Importer: Import file %s detected as YouTube Music HTML history", file.Name())
+			if err := importer.ImportYouTubeMusicFile(logger.NewContext(l), store, mbzc, file.Name()); err != nil {
+				l.Err(err).Msgf("Importer: Failed to import file: %s", file.Name())
+			}
+		} else if strings.Contains(file.Name(), "Streaming_History_Audio") {
 			l.Info().Msgf("Importer: Import file %s detecting as being Spotify export", file.Name())
 			err := importer.ImportSpotifyFile(logger.NewContext(l), store, mbzc, file.Name())
 			if err != nil {

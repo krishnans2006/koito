@@ -22,6 +22,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	golang.org/x/crypto v0.38.0
 	golang.org/x/image v0.33.0
+	golang.org/x/net v0.40.0
 	modernc.org/sqlite v1.49.1
 )
 

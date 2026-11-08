@@ -1,0 +1,199 @@
+{
+  "contents": {
+    "singleColumnMusicWatchNextResultsRenderer": {
+      "tabbedRenderer": {
+        "watchNextTabbedResultsRenderer": {
+          "tabs": [
+            {
+              "tabRenderer": {
+                "content": {
+                  "musicQueueRenderer": {
+                    "content": {
+                      "playlistPanelRenderer": {
+                        "contents": [
+                          {
+                            "playlistPanelVideoRenderer": {
+                              "videoId": "zzzzzzzzzzz",
+                              "title": {
+                                "runs": [
+                                  {
+                                    "text": "Unrelated recommendation"
+                                  }
+                                ]
+                              },
+                              "longBylineText": {
+                                "runs": [
+                                  {
+                                    "text": "Unrelated artist",
+                                    "navigationEndpoint": {
+                                      "browseEndpoint": {
+                                        "browseEndpointContextSupportedConfigs": {
+                                          "browseEndpointContextMusicConfig": {
+                                            "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "lengthText": {
+                                "simpleText": "9:59"
+                              }
+                            }
+                          },
+                          {
+                            "playlistPanelVideoRenderer": {
+                              "videoId": "aaaaaaaaaaa",
+                              "title": {
+                                "runs": [
+                                  {
+                                    "text": "Song & More (Live) (feat. Guest)"
+                                  }
+                                ]
+                              },
+                              "longBylineText": {
+                                "runs": [
+                                  {
+                                    "text": "Earth, Wind & Fire",
+                                    "navigationEndpoint": {
+                                      "browseEndpoint": {
+                                        "browseId": "UCartist",
+                                        "browseEndpointContextSupportedConfigs": {
+                                          "browseEndpointContextMusicConfig": {
+                                            "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "text": " & "
+                                  },
+                                  {
+                                    "text": "Guest",
+                                    "navigationEndpoint": {
+                                      "browseEndpoint": {
+                                        "browseId": "UCguest",
+                                        "browseEndpointContextSupportedConfigs": {
+                                          "browseEndpointContextMusicConfig": {
+                                            "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "text": " • "
+                                  },
+                                  {
+                                    "text": "Live Album",
+                                    "navigationEndpoint": {
+                                      "browseEndpoint": {
+                                        "browseId": "MPREalbum",
+                                        "browseEndpointContextSupportedConfigs": {
+                                          "browseEndpointContextMusicConfig": {
+                                            "pageType": "MUSIC_PAGE_TYPE_ALBUM"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "text": " • "
+                                  },
+                                  {
+                                    "text": "2026"
+                                  },
+                                  {
+                                    "text": " • "
+                                  },
+                                  {
+                                    "text": "10M views"
+                                  }
+                                ]
+                              },
+                              "lengthText": {
+                                "runs": [
+                                  {
+                                    "text": "3:24"
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "playlistPanelVideoWrapperRenderer": {
+                              "primaryRenderer": {
+                                "playlistPanelVideoRenderer": {
+                                  "videoId": "bbbbbbbbbbb",
+                                  "title": {
+                                    "simpleText": "Other Song (Acoustic)"
+                                  },
+                                  "longBylineText": {
+                                    "runs": [
+                                      {
+                                        "text": "Other Artist",
+                                        "navigationEndpoint": {
+                                          "browseEndpoint": {
+                                            "browseEndpointContextSupportedConfigs": {
+                                              "browseEndpointContextMusicConfig": {
+                                                "pageType": "MUSIC_PAGE_TYPE_ARTIST"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "lengthText": {
+                                    "simpleText": "4:01"
+                                  }
+                                }
+                              },
+                              "counterpart": [
+                                {
+                                  "counterpartRenderer": {
+                                    "playlistPanelVideoRenderer": {
+                                      "videoId": "ccccccccccc",
+                                      "title": {
+                                        "simpleText": "Other Song (User Edit)"
+                                      },
+                                      "longBylineText": {
+                                        "runs": [
+                                          {
+                                            "text": "An Uploader",
+                                            "navigationEndpoint": {
+                                              "browseEndpoint": {
+                                                "browseEndpointContextSupportedConfigs": {
+                                                  "browseEndpointContextMusicConfig": {
+                                                    "pageType": "MUSIC_PAGE_TYPE_USER_CHANNEL"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "lengthText": {
+                                        "simpleText": "2:52"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
