@@ -20,7 +20,7 @@ import (
 const defaultItemsPerPage = 20
 
 type Sqlite struct {
-	db *sql.DB
+	db database
 }
 
 func New() (*Sqlite, error) {
@@ -52,14 +52,14 @@ func NewInMemory() (*Sqlite, error) {
 	// Named in-memory URIs with cache=shared let multiple sql.DB connections
 	// share the same logical database within a process. A unique name per call
 	// prevents parallel test instances from seeing each other's data.
-	// SetMaxOpenConns(1) ensures goose and all subsequent queries use the same
-	// underlying connection (required for in-memory databases to persist).
+	// Keep a small pool for nested credit reads in website/export queries.
+	// The shared named URI keeps every connection on the same database.
 	dsn := fmt.Sprintf("file:%s?mode=memory&cache=shared&_pragma=foreign_keys(ON)", uuid.New().String())
 	sqldb, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("sqlite.NewInMemory: open: %w", err)
 	}
-	sqldb.SetMaxOpenConns(1)
+	sqldb.SetMaxOpenConns(4)
 
 	if err := sqldb.Ping(); err != nil {
 		sqldb.Close()
@@ -123,7 +123,7 @@ func (s *Sqlite) artistsForTrack(ctx context.Context, trackID int32) ([]models.S
 		return nil, err
 	}
 	defer rows.Close()
-	var artists []models.SimpleArtist
+	artists := make([]models.SimpleArtist, 0)
 	for rows.Next() {
 		var a models.SimpleArtist
 		var isPrimary int
@@ -151,7 +151,7 @@ func (s *Sqlite) artistsForRelease(ctx context.Context, releaseID int32) ([]mode
 		return nil, err
 	}
 	defer rows.Close()
-	var artists []models.SimpleArtist
+	artists := make([]models.SimpleArtist, 0)
 	for rows.Next() {
 		var a models.SimpleArtist
 		var isPrimary int

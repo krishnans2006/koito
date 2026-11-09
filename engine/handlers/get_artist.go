@@ -9,7 +9,7 @@ import (
 	"github.com/gabehf/koito/internal/utils"
 )
 
-func GetArtistHandler(store db.ArtistStore) func(w http.ResponseWriter, r *http.Request) {
+func GetArtistHandler(store db.ArtistReader) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -38,7 +38,7 @@ func GetArtistHandler(store db.ArtistStore) func(w http.ResponseWriter, r *http.
 }
 
 // GetArtistAliasesHandler retrieves all aliases for a given artist.
-func GetArtistAliasesHandler(store db.ArtistStore) http.HandlerFunc {
+func GetArtistAliasesHandler(store db.ArtistReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -62,7 +62,7 @@ func GetArtistAliasesHandler(store db.ArtistStore) http.HandlerFunc {
 }
 
 // GetArtistInterestHandler retrieves interest data for a given artist.
-func GetArtistInterestHandler(store db.ListenStore) http.HandlerFunc {
+func GetArtistInterestHandler(store db.ListenReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)

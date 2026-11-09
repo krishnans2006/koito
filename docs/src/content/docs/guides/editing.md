@@ -63,3 +63,11 @@ To delete at item, just click the trash icon, which is the fourth and final icon
 Deleting items is irreversible.
 
 :::
+
+#### Hiding Artists
+
+Admins can manage **Hidden artists** in Settings. Search by an artist's name or alias and select **Add**. Select **Unhide** in the same settings tab to restore visibility.
+
+Hidden artists and tracks credited to them, including collaborations, disappear from website views and statistics for everyone. Mixed compilations retain their other visible tracks. Scrobbles remain in the database, continue to be accepted, and are included with full artist metadata in exports.
+
+Selections follow the stored artist across name and alias changes. Merging a hidden artist into another artist keeps the result hidden. The hidden list itself is an instance setting and is not included in scrobble exports. Other open browsers reflect changes when they refresh.

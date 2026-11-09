@@ -9,7 +9,7 @@ import (
 	"github.com/gabehf/koito/internal/utils"
 )
 
-func GetTrackHandler(store db.TrackStore) func(w http.ResponseWriter, r *http.Request) {
+func GetTrackHandler(store db.TrackReader) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -38,7 +38,7 @@ func GetTrackHandler(store db.TrackStore) func(w http.ResponseWriter, r *http.Re
 }
 
 // GetTrackAliasesHandler retrieves all aliases for a given track.
-func GetTrackAliasesHandler(store db.TrackStore) http.HandlerFunc {
+func GetTrackAliasesHandler(store db.TrackReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -62,7 +62,7 @@ func GetTrackAliasesHandler(store db.TrackStore) http.HandlerFunc {
 }
 
 // GetArtistsForTrackHandler retrieves all artists for a given track.
-func GetArtistsForTrackHandler(store db.ArtistStore) http.HandlerFunc {
+func GetArtistsForTrackHandler(store db.ArtistReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -86,7 +86,7 @@ func GetArtistsForTrackHandler(store db.ArtistStore) http.HandlerFunc {
 }
 
 // GetTrackInterestHandler retrieves interest data for a given track.
-func GetTrackInterestHandler(store db.ListenStore) http.HandlerFunc {
+func GetTrackInterestHandler(store db.ListenReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)

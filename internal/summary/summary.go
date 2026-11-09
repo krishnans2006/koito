@@ -26,10 +26,10 @@ type Summary struct {
 }
 
 type summaryStore interface {
-	db.ArtistStore
-	db.AlbumStore
-	db.TrackStore
-	db.ListenStore
+	db.ArtistReader
+	db.AlbumReader
+	db.TrackReader
+	db.ListenReader
 }
 
 func GenerateSummary(ctx context.Context, store summaryStore, userId int32, timeframe db.Timeframe, title string) (summary *Summary, err error) {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gabehf/koito/internal/db"
@@ -15,7 +16,7 @@ type NowPlayingResponse struct {
 	Track            models.Track `json:"track"`
 }
 
-func NowPlayingHandler(store db.TrackStore) http.HandlerFunc {
+func NowPlayingHandler(store db.TrackReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -30,7 +31,9 @@ func NowPlayingHandler(store db.TrackStore) http.HandlerFunc {
 			utils.WriteError(w, "internal server error", http.StatusInternalServerError)
 		} else {
 			track, err := store.GetTrack(ctx, db.GetTrackOpts{ID: trackId})
-			if err != nil {
+			if errors.Is(err, db.ErrNotFound) {
+				utils.WriteJSON(w, http.StatusOK, NowPlayingResponse{CurrentlyPlaying: false})
+			} else if err != nil {
 				l.Error().Err(err).Msg("NowPlayingHandler: Failed to get track from database")
 				utils.WriteError(w, "failed to fetch currently playing track from database", http.StatusInternalServerError)
 			} else {

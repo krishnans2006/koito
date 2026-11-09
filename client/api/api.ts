@@ -482,3 +482,28 @@ export type {
   RewindStats,
   ImageList,
 };
+
+export type VisibilityArtist = {
+  id: number;
+  name: string;
+  musicbrainz_id: string | null;
+  hidden: boolean;
+};
+
+export function getHiddenArtists(signal?: AbortSignal): Promise<VisibilityArtist[]> {
+  return fetch("/apis/web/v1/admin/hidden-artists", { signal }).then(handleJson<VisibilityArtist[]>);
+}
+
+export function searchVisibilityArtists(query: string, signal?: AbortSignal): Promise<VisibilityArtist[]> {
+  return fetch(`/apis/web/v1/admin/artists/search?q=${encodeURIComponent(query)}`, { signal }).then(handleJson<VisibilityArtist[]>);
+}
+
+export async function setArtistHidden(id: number, hidden: boolean): Promise<void> {
+  const response = await fetch(`/apis/web/v1/admin/hidden-artists/${id}`, {
+    method: hidden ? "PUT" : "DELETE",
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Could not update artist visibility");
+  }
+}

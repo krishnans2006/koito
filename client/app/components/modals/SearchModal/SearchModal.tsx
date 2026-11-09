@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { search, type SearchResponse } from "api/api";
 import SearchResults from "./SearchResults";
+import { useAppContext } from "~/providers/AppProvider";
 import SubHeader from "../../primitives/SubHeader";
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function SearchModal({ open, setOpen }: Props) {
+  const { websiteVersion } = useAppContext();
   const [query, setQuery] = useState("");
   const [data, setData] = useState<SearchResponse>();
   const deferredQuery = useDeferredValue(query);
@@ -25,10 +27,13 @@ export default function SearchModal({ open, setOpen }: Props) {
   };
 
   useEffect(() => {
+    let active = true;
+    setData(undefined);
     if (deferredQuery) {
-      search(deferredQuery).then((r) => setData(r));
+      search(deferredQuery).then((result) => { if (active) setData(result); });
     }
-  }, [deferredQuery]);
+    return () => { active = false; };
+  }, [deferredQuery, websiteVersion]);
 
   useEffect(() => {
     if (open) {

@@ -84,7 +84,7 @@ function ItemCard({
     typedItem.is_various_artists ? (
       "Various Artists"
     ) : (
-      <ArtistLinks artists={[typedItem.artists[0]]} />
+      <ArtistLinks artists={typedItem.artists.slice(0, 1)} />
     )
   ) : !isArtist ? (
     <ArtistLinks artists={typedItem.artists} />

@@ -9,7 +9,7 @@ import (
 	"github.com/gabehf/koito/internal/utils"
 )
 
-func GetAlbumHandler(store db.AlbumStore) func(w http.ResponseWriter, r *http.Request) {
+func GetAlbumHandler(store db.AlbumReader) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -38,7 +38,7 @@ func GetAlbumHandler(store db.AlbumStore) func(w http.ResponseWriter, r *http.Re
 }
 
 // GetAlbumAliasesHandler retrieves all aliases for a given album.
-func GetAlbumAliasesHandler(store db.AlbumStore) http.HandlerFunc {
+func GetAlbumAliasesHandler(store db.AlbumReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -62,7 +62,7 @@ func GetAlbumAliasesHandler(store db.AlbumStore) http.HandlerFunc {
 }
 
 // GetArtistsForAlbumHandler retrieves all artists for a given album.
-func GetArtistsForAlbumHandler(store db.ArtistStore) http.HandlerFunc {
+func GetArtistsForAlbumHandler(store db.ArtistReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -86,7 +86,7 @@ func GetArtistsForAlbumHandler(store db.ArtistStore) http.HandlerFunc {
 }
 
 // GetAlbumInterestHandler retrieves interest data for a given album.
-func GetAlbumInterestHandler(store db.ListenStore) http.HandlerFunc {
+func GetAlbumInterestHandler(store db.ListenReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)

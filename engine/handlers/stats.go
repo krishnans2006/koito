@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -25,10 +26,11 @@ type StatsResponse struct {
 }
 
 type statsStore interface {
-	db.ListenStore
-	db.TrackStore
-	db.AlbumStore
-	db.ArtistStore
+	WebsiteRevision(context.Context) (string, error)
+	db.ListenReader
+	db.TrackReader
+	db.AlbumReader
+	db.ArtistReader
 }
 
 func StatsHandler(store statsStore) http.HandlerFunc {
@@ -41,7 +43,12 @@ func StatsHandler(store statsStore) http.HandlerFunc {
 
 		l.Debug().Msg("StatsHandler: Fetching statistics")
 
-		cacheKeyString := fmt.Sprintf("stats_%s_%s", r.URL.Query().Encode(), tf.Timezone.String())
+		revision, err := store.WebsiteRevision(r.Context())
+		if err != nil {
+			utils.WriteError(w, "failed to get website revision", http.StatusInternalServerError)
+			return
+		}
+		cacheKeyString := fmt.Sprintf("stats_%s_%s_%s", revision, r.URL.Query().Encode(), tf.Timezone.String())
 
 		if cachedStatsI, ok := memkv.Store.Get(cacheKeyString); ok {
 			if cachedStats, ok := cachedStatsI.(*StatsResponse); ok {
@@ -111,9 +118,9 @@ func StatsHandler(store statsStore) http.HandlerFunc {
 			ArtistCount:     artists,
 			MinutesListened: timeListenedS / 60,
 			DaysActive:      activeDays,
-			AvgDailyPlays:   float32(listens) / float32(activeDays),
-			TracksPerArtist: float32(tracks) / float32(artists),
-			AlbumsPerArtist: float32(albums) / float32(artists),
+			AvgDailyPlays:   safeRatio(listens, int64(activeDays)),
+			TracksPerArtist: safeRatio(tracks, artists),
+			AlbumsPerArtist: safeRatio(albums, artists),
 			LongestStreak:   longestStreak,
 		}
 
@@ -122,4 +129,11 @@ func StatsHandler(store statsStore) http.HandlerFunc {
 		// save to cache for 30 minutes
 		memkv.Store.Set(cacheKeyString, resp, 30*time.Minute)
 	}
+}
+
+func safeRatio(numerator, denominator int64) float32 {
+	if denominator == 0 {
+		return 0
+	}
+	return float32(numerator) / float32(denominator)
 }

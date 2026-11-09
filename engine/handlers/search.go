@@ -18,9 +18,9 @@ type SearchResults struct {
 }
 
 type searchStore interface {
-	db.ArtistStore
-	db.AlbumStore
-	db.TrackStore
+	db.ArtistReader
+	db.AlbumReader
+	db.TrackReader
 }
 
 func SearchHandler(store searchStore) http.HandlerFunc {

@@ -9,12 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type ArtistStore interface {
+type ArtistReader interface {
 	GetArtist(ctx context.Context, opts GetArtistOpts) (*models.Artist, error)
 	GetArtistsForAlbum(ctx context.Context, id int32) ([]*models.Artist, error)
 	GetArtistsForTrack(ctx context.Context, id int32) ([]*models.Artist, error)
 	GetTopArtistsPaginated(ctx context.Context, opts GetItemsOpts) (*PaginatedResponse[RankedItem[*models.Artist]], error)
 	GetAllArtistAliases(ctx context.Context, id int32) ([]models.Alias, error)
+	SearchArtists(ctx context.Context, q string) ([]*models.Artist, error)
+	CountArtists(ctx context.Context, timeframe Timeframe) (int64, error)
+	CountNewArtists(ctx context.Context, timeframe Timeframe) (int64, error)
+}
+
+type ArtistStore interface {
+	ArtistReader
 	SaveArtist(ctx context.Context, opts SaveArtistOpts) (*models.Artist, error)
 	SaveArtistAliases(ctx context.Context, id int32, aliases []string, source string) error
 	UpdateArtist(ctx context.Context, opts UpdateArtistOpts) error
@@ -24,17 +31,21 @@ type ArtistStore interface {
 	DeleteArtist(ctx context.Context, id int32) error
 	DeleteArtistAlias(ctx context.Context, id int32, alias string) error
 	MergeArtists(ctx context.Context, fromId, toId int32, replaceImage bool) error
-	SearchArtists(ctx context.Context, q string) ([]*models.Artist, error)
-	CountArtists(ctx context.Context, timeframe Timeframe) (int64, error)
-	CountNewArtists(ctx context.Context, timeframe Timeframe) (int64, error)
 	ArtistsWithoutImages(ctx context.Context, from int32) ([]*models.Artist, error)
 }
 
-type AlbumStore interface {
+type AlbumReader interface {
 	GetAlbum(ctx context.Context, opts GetAlbumOpts) (*models.Album, error)
-	GetAlbumWithNoMbzIDByTitles(ctx context.Context, artistId int32, titles []string) (*models.Album, error)
 	GetTopAlbumsPaginated(ctx context.Context, opts GetItemsOpts) (*PaginatedResponse[RankedItem[*models.Album]], error)
 	GetAllAlbumAliases(ctx context.Context, id int32) ([]models.Alias, error)
+	SearchAlbums(ctx context.Context, q string) ([]*models.Album, error)
+	CountAlbums(ctx context.Context, timeframe Timeframe) (int64, error)
+	CountNewAlbums(ctx context.Context, timeframe Timeframe) (int64, error)
+}
+
+type AlbumStore interface {
+	AlbumReader
+	GetAlbumWithNoMbzIDByTitles(ctx context.Context, artistId int32, titles []string) (*models.Album, error)
 	SaveAlbum(ctx context.Context, opts SaveAlbumOpts) (*models.Album, error)
 	SaveAlbumAliases(ctx context.Context, id int32, aliases []string, source string) error
 	UpdateAlbum(ctx context.Context, opts UpdateAlbumOpts) error
@@ -43,17 +54,21 @@ type AlbumStore interface {
 	DeleteAlbum(ctx context.Context, id int32) error
 	DeleteAlbumAlias(ctx context.Context, id int32, alias string) error
 	MergeAlbums(ctx context.Context, fromId, toId int32, replaceImage bool) error
-	SearchAlbums(ctx context.Context, q string) ([]*models.Album, error)
-	CountAlbums(ctx context.Context, timeframe Timeframe) (int64, error)
-	CountNewAlbums(ctx context.Context, timeframe Timeframe) (int64, error)
 	AlbumsWithoutImages(ctx context.Context, from int32) ([]*models.Album, error)
 }
 
-type TrackStore interface {
+type TrackReader interface {
 	GetTrack(ctx context.Context, opts GetTrackOpts) (*models.Track, error)
-	GetTracksWithNoDurationButHaveMbzID(ctx context.Context, from int32) ([]*models.Track, error)
 	GetTopTracksPaginated(ctx context.Context, opts GetItemsOpts) (*PaginatedResponse[RankedItem[*models.Track]], error)
 	GetAllTrackAliases(ctx context.Context, id int32) ([]models.Alias, error)
+	SearchTracks(ctx context.Context, q string) ([]*models.Track, error)
+	CountTracks(ctx context.Context, timeframe Timeframe) (int64, error)
+	CountNewTracks(ctx context.Context, timeframe Timeframe) (int64, error)
+}
+
+type TrackStore interface {
+	TrackReader
+	GetTracksWithNoDurationButHaveMbzID(ctx context.Context, from int32) ([]*models.Track, error)
 	SaveTrack(ctx context.Context, opts SaveTrackOpts) (*models.Track, error)
 	SaveTrackAliases(ctx context.Context, id int32, aliases []string, source string) error
 	UpdateTrack(ctx context.Context, opts UpdateTrackOpts) error
@@ -61,18 +76,13 @@ type TrackStore interface {
 	DeleteTrack(ctx context.Context, id int32) error
 	DeleteTrackAlias(ctx context.Context, id int32, alias string) error
 	MergeTracks(ctx context.Context, fromId, toId int32) error
-	SearchTracks(ctx context.Context, q string) ([]*models.Track, error)
-	CountTracks(ctx context.Context, timeframe Timeframe) (int64, error)
-	CountNewTracks(ctx context.Context, timeframe Timeframe) (int64, error)
 	AddArtistsToAlbum(ctx context.Context, opts AddArtistsToAlbumOpts) error
 }
 
-type ListenStore interface {
+type ListenReader interface {
 	GetListensPaginated(ctx context.Context, opts GetItemsOpts) (*PaginatedResponse[*models.Listen], error)
 	GetListenActivity(ctx context.Context, opts ListenActivityOpts) ([]ListenActivityItem, error)
 	GetInterest(ctx context.Context, opts GetInterestOpts) ([]InterestBucket, error)
-	SaveListen(ctx context.Context, opts SaveListenOpts) error
-	DeleteListen(ctx context.Context, trackId int32, listenedAt time.Time) error
 	CountListens(ctx context.Context, timeframe Timeframe) (int64, error)
 	CountListensToItem(ctx context.Context, opts TimeListenedOpts) (int64, error)
 	CountTimeListened(ctx context.Context, timeframe Timeframe) (int64, error)
@@ -81,6 +91,12 @@ type ListenStore interface {
 	GetActiveDays(ctx context.Context, tz *time.Location) (int, error)
 	GetListenStreak(ctx context.Context, opts ListenActivityOpts) (int, error)
 	GetLongestListenStreak(ctx context.Context, opts ListenActivityOpts) (int, error)
+}
+
+type ListenStore interface {
+	ListenReader
+	SaveListen(ctx context.Context, opts SaveListenOpts) error
+	DeleteListen(ctx context.Context, trackId int32, listenedAt time.Time) error
 }
 
 type UserStore interface {
@@ -100,9 +116,13 @@ type UserStore interface {
 	CountUsers(ctx context.Context) (int64, error)
 }
 
-type ImageStore interface {
+type ImageReader interface {
 	ImageHasAssociation(ctx context.Context, image uuid.UUID) (bool, error)
 	GetImageSource(ctx context.Context, image uuid.UUID) (string, error)
+}
+
+type ImageStore interface {
+	ImageReader
 	GetUserUploadedImageIDs(ctx context.Context) ([]uuid.UUID, error)
 }
 
@@ -111,6 +131,8 @@ type ExportStore interface {
 }
 
 type DB interface {
+	ArtistVisibilityStore
+	WebReads() WebReadStore
 	ArtistStore
 	AlbumStore
 	TrackStore

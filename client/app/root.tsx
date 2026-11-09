@@ -127,6 +127,7 @@ export function ErrorBoundary() {
   const title = `${message} - Koito`;
 
   return (
+    <QueryClientProvider client={queryClient}>
     <AppProvider>
       <ThemeProvider>
         <title>{title}</title>
@@ -152,5 +153,6 @@ export function ErrorBoundary() {
         </div>
       </ThemeProvider>
     </AppProvider>
+    </QueryClientProvider>
   );
 }

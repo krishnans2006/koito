@@ -102,7 +102,7 @@ export default function TopAlbumsCard({ period }: Props) {
               <ArtistLinks
                 artists={
                   data.items[0]?.item.artists
-                    ? [data.items[0]?.item.artists[0]]
+                    ? data.items[0].item.artists.slice(0, 1)
                     : [{ id: 0, name: "Unknown Artist" }]
                 }
               />
@@ -124,7 +124,7 @@ export default function TopAlbumsCard({ period }: Props) {
                 link={`/album/${i.item.id}`}
                 title={i.item.title}
                 alt={i.item.title}
-                subtitle={<ArtistLinks artists={[i.item.artists[0]]} />}
+                subtitle={<ArtistLinks artists={i.item.artists.slice(0, 1)} />}
                 meta={`${i.item.listen_count} plays`}
               />
             </div>

@@ -12,7 +12,7 @@ import MediaItemNote from "~/components/MediaItemNote";
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const res = await fetch(`/apis/web/v1/artist/${params.id}`);
   if (!res.ok) {
-    throw new Response("Failed to load artist", { status: 500 });
+    throw new Response("Failed to load artist", { status: res.status });
   }
   const artist: Artist = await res.json();
   return artist;

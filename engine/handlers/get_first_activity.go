@@ -9,7 +9,7 @@ import (
 	"github.com/gabehf/koito/internal/utils"
 )
 
-func FirstActivityHandler(store db.ListenStore) http.HandlerFunc {
+func FirstActivityHandler(store db.ListenReader) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		l := logger.FromContext(ctx)
@@ -18,12 +18,18 @@ func FirstActivityHandler(store db.ListenStore) http.HandlerFunc {
 		if err != nil {
 			l.Debug().Err(err).Msg("Failed to get first listen unix")
 			utils.WriteError(w, "failed to get first listen activity", 500)
+			return
 		}
 
+		var first *time.Time
+		if unix != 0 {
+			t := time.Unix(unix, 0).UTC()
+			first = &t
+		}
 		utils.WriteJSON(w, 200, struct {
-			Time time.Time `json:"time"`
+			Time *time.Time `json:"time"`
 		}{
-			Time: time.Unix(unix, 0).UTC(),
+			Time: first,
 		})
 	}
 }

@@ -10,13 +10,14 @@ import (
 	"github.com/gabehf/koito/imagecache"
 	"github.com/gabehf/koito/internal/db"
 	"github.com/gabehf/koito/internal/logger"
+	"github.com/gabehf/koito/internal/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/singleflight"
 )
 
-func ImageHandler(store db.ImageStore) http.HandlerFunc {
+func ImageHandler(store db.ImageReader) http.HandlerFunc {
 	var downloadGroup singleflight.Group
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -29,6 +30,17 @@ func ImageHandler(store db.ImageStore) http.HandlerFunc {
 		imgid, err := uuid.Parse(imageIdStr)
 		if err != nil {
 			l.Debug().Msgf("ImageHandler: Invalid image id '%s'", imageIdStr)
+			http.NotFound(w, r)
+			return
+		}
+
+		visible, err := store.ImageHasAssociation(ctx, imgid)
+		if err != nil {
+			utils.WriteError(w, "failed to check image visibility", http.StatusInternalServerError)
+			return
+		}
+		// The nil UUID is the shared placeholder for missing artwork.
+		if !visible && imgid != uuid.Nil {
 			http.NotFound(w, r)
 			return
 		}
@@ -52,7 +64,7 @@ func ImageHandler(store db.ImageStore) http.HandlerFunc {
 	}
 }
 
-func imageHandlerRedownload(w http.ResponseWriter, r *http.Request, l *zerolog.Logger, store db.ImageStore, downloadGroup *singleflight.Group, imgid uuid.UUID, filename string) (*imagecache.ImageInfo, error) {
+func imageHandlerRedownload(w http.ResponseWriter, r *http.Request, l *zerolog.Logger, store db.ImageReader, downloadGroup *singleflight.Group, imgid uuid.UUID, filename string) (*imagecache.ImageInfo, error) {
 	ctx := r.Context()
 
 	src, err := store.GetImageSource(ctx, imgid)
@@ -116,6 +128,6 @@ func serveDefaultImage(w http.ResponseWriter, size imagecache.ImageSize) {
 }
 
 // finds the item associated with the image id, downloads it, and saves it in the source path, returning the path to the image
-func downloadMissingImage(ctx context.Context, store db.ImageStore, id uuid.UUID) error {
+func downloadMissingImage(ctx context.Context, store db.ImageReader, id uuid.UUID) error {
 	return nil
 }

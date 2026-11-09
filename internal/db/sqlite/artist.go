@@ -564,6 +564,11 @@ func (s *Sqlite) MergeArtists(ctx context.Context, fromId, toId int32, replaceIm
 	}
 	defer tx.Rollback()
 
+	if _, err := tx.ExecContext(ctx, `INSERT OR IGNORE INTO hidden_artists (artist_id)
+        SELECT ? WHERE EXISTS (SELECT 1 FROM hidden_artists WHERE artist_id = ?)`, toId, fromId); err != nil {
+		return err
+	}
+
 	if replaceImage {
 		var image, imageSrc sql.NullString
 		tx.QueryRowContext(ctx, `SELECT image, image_source FROM artists WHERE id = ?`, fromId).

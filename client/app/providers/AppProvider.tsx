@@ -15,6 +15,8 @@ interface AppContextType {
   currentVersion: string;
   updateAvailable: boolean;
   firstActivity: Date | undefined;
+  websiteVersion: number;
+  refreshWebsite: () => void;
   setConfigurableHomeActivity: (value: boolean) => void;
   setHomeItems: (value: number) => void;
   setUsername: (value: string) => void;
@@ -50,6 +52,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [updateAvailable, setUpdateAvailable] = useState<boolean>(false);
   const [firstActivity, setFirstActivity] = useState<Date | undefined>();
+  const [websiteVersion, setWebsiteVersion] = useState(0);
+  const refreshWebsite = () => setWebsiteVersion((version) => version + 1);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/apis/web/v1/first-activity", { signal: controller.signal })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setFirstActivity(data.time ? new Date(data.time) : undefined);
+        }
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [websiteVersion]);
 
   useEffect(() => {
     fetch("/apis/web/v1/user")
@@ -70,15 +87,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setDefaultTheme("yuu");
       }
     });
-
-    fetch("/apis/web/v1/first-activity")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.error) {
-          setFirstActivity(new Date(data.time));
-        }
-      })
-      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -103,6 +111,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     currentVersion,
     updateAvailable,
     firstActivity,
+    websiteVersion,
+    refreshWebsite,
     setConfigurableHomeActivity,
     setHomeItems,
     setUsername,

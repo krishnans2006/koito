@@ -33,41 +33,53 @@ func bindRoutes(
 		}))
 	}
 	r.Use(chimiddleware.GetHead)
+	web := db.WebReads()
 
 	r.With(chimiddleware.RequestSize(5<<20)).
-		Get("/image/{image_id}/{filename}", handlers.ImageHandler(db))
+		Get("/image/{image_id}/{filename}", handlers.ImageHandler(web))
 
 	r.Route("/apis/web/v1", func(r chi.Router) {
 		r.Get("/config", handlers.GetCfgHandler())
 
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Authenticate(db, middleware.AuthModeLoginGate))
-			r.Get("/artist/{id}", handlers.GetArtistHandler(db))                  // done
-			r.Get("/artist/{id}/aliases", handlers.GetArtistAliasesHandler(db))   // done
-			r.Get("/artist/{id}/interest", handlers.GetArtistInterestHandler(db)) // done
+			r.Use(middleware.VisibleMedia(web))
+			r.Get("/artist/{id}", handlers.GetArtistHandler(web))                  // done
+			r.Get("/artist/{id}/aliases", handlers.GetArtistAliasesHandler(web))   // done
+			r.Get("/artist/{id}/interest", handlers.GetArtistInterestHandler(web)) // done
 
-			r.Get("/album/{id}", handlers.GetAlbumHandler(db))                   // done
-			r.Get("/album/{id}/artists", handlers.GetArtistsForAlbumHandler(db)) // done
-			r.Get("/album/{id}/aliases", handlers.GetAlbumAliasesHandler(db))    // done
-			r.Get("/album/{id}/interest", handlers.GetAlbumInterestHandler(db))  // done
+			r.Get("/album/{id}", handlers.GetAlbumHandler(web))                   // done
+			r.Get("/album/{id}/artists", handlers.GetArtistsForAlbumHandler(web)) // done
+			r.Get("/album/{id}/aliases", handlers.GetAlbumAliasesHandler(web))    // done
+			r.Get("/album/{id}/interest", handlers.GetAlbumInterestHandler(web))  // done
 
-			r.Get("/track/{id}", handlers.GetTrackHandler(db))                   // done
-			r.Get("/track/{id}/artists", handlers.GetArtistsForTrackHandler(db)) // done
-			r.Get("/track/{id}/aliases", handlers.GetTrackAliasesHandler(db))    // done
-			r.Get("/track/{id}/interest", handlers.GetTrackInterestHandler(db))  // done
+			r.Get("/track/{id}", handlers.GetTrackHandler(web))                   // done
+			r.Get("/track/{id}/artists", handlers.GetArtistsForTrackHandler(web)) // done
+			r.Get("/track/{id}/aliases", handlers.GetTrackAliasesHandler(web))    // done
+			r.Get("/track/{id}/interest", handlers.GetTrackInterestHandler(web))  // done
 
-			r.Get("/top/tracks", handlers.GetTopTracksHandler(db))
-			r.Get("/top/albums", handlers.GetTopAlbumsHandler(db))
-			r.Get("/top/artists", handlers.GetTopArtistsHandler(db))
+			r.Get("/top/tracks", handlers.GetTopTracksHandler(web))
+			r.Get("/top/albums", handlers.GetTopAlbumsHandler(web))
+			r.Get("/top/artists", handlers.GetTopArtistsHandler(web))
 
-			r.Get("/listens", handlers.GetListensHandler(db))
-			r.Get("/listen-activity", handlers.GetListenActivityHandler(db))
-			r.Get("/first-activity", handlers.FirstActivityHandler(db))
-			r.Get("/now-playing", handlers.NowPlayingHandler(db))
-			r.Get("/stats", handlers.StatsHandler(db))
-			r.Get("/search", handlers.SearchHandler(db))
-			r.Get("/summary", handlers.SummaryHandler(db))
+			r.Get("/listens", handlers.GetListensHandler(web))
+			r.Get("/listen-activity", handlers.GetListenActivityHandler(web))
+			r.Get("/first-activity", handlers.FirstActivityHandler(web))
+			r.Get("/now-playing", handlers.NowPlayingHandler(web))
+			r.Get("/stats", handlers.StatsHandler(web))
+			r.Get("/search", handlers.SearchHandler(web))
+			r.Get("/summary", handlers.SummaryHandler(web))
 		})
+
+		r.Route("/admin", func(r chi.Router) {
+			r.Use(middleware.Authenticate(db, middleware.AuthModeSessionCookie))
+			r.Use(middleware.RequireAdmin)
+			r.Get("/hidden-artists", handlers.GetHiddenArtistsHandler(db))
+			r.Put("/hidden-artists/{id}", handlers.SetArtistHiddenHandler(db, true))
+			r.Delete("/hidden-artists/{id}", handlers.SetArtistHiddenHandler(db, false))
+			r.Get("/artists/search", handlers.SearchVisibilityArtistsHandler(db))
+		})
+
 		r.Post("/logout", handlers.LogoutHandler(db))
 		if !cfg.RateLimitDisabled() {
 			r.With(httprate.Limit(

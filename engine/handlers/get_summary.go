@@ -10,10 +10,10 @@ import (
 )
 
 type summaryHandlerStore interface {
-	db.ArtistStore
-	db.AlbumStore
-	db.TrackStore
-	db.ListenStore
+	db.ArtistReader
+	db.AlbumReader
+	db.TrackReader
+	db.ListenReader
 }
 
 func SummaryHandler(store summaryHandlerStore) http.HandlerFunc {

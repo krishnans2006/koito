@@ -87,7 +87,7 @@ export default function SearchResults({ data, onSelect, selectorMode }: Props) {
                 subtext={
                   album.is_various_artists
                     ? "Various Artists"
-                    : album.artists[0].name
+                    : album.artists[0]?.name ?? ""
                 }
                 img={album.image.small}
                 active={selected === album.id}
@@ -101,7 +101,7 @@ export default function SearchResults({ data, onSelect, selectorMode }: Props) {
                 subtext={
                   album.is_various_artists
                     ? "Various Artists"
-                    : album.artists[0].name
+                    : album.artists[0]?.name ?? ""
                 }
                 img={album.image.small}
               />
